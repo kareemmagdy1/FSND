@@ -59,6 +59,11 @@ class Artist(db.Model):
     facebook_link = db.Column(db.String(120))
     shows = db.relationship('Show', backref='list')
 
+class Genre(db.Model):
+  __tablename='genre'
+  id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+  name=db.Column(db.String,nullable=False,unique=True)
+
 class ArtistGenre(db.Model):
   __tablename='artist_genre'
   id = db.Column(db.Integer, primary_key=True,autoincrement=True)
@@ -70,11 +75,6 @@ class VenueGenre(db.Model):
   id = db.Column(db.Integer, primary_key=True,autoincrement=True)
   venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), nullable=False)
   genre_id=db.Column(db.Integer,db.ForeignKey('genre.id'),nullable=False)
-
-class Genre(db.Model):
-  __tablename='genre'
-  id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-  name=db.Column(db.String,nullable=False,unique=True)
 
 class Show(db.Model):
   __tablename__='show'
