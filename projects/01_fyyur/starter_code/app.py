@@ -3,10 +3,17 @@
 #----------------------------------------------------------------------------#
 
 import json
+
 import dateutil.parser
 import babel
 import sys
-from flask import Flask, render_template, request, Response, flash, redirect, url_for
+from flask import( Flask,
+                   render_template,
+                   request,
+                   Response,
+                   flash,
+                   redirect,
+                   url_for)
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 import logging
@@ -24,6 +31,8 @@ app = Flask(__name__)
 moment = Moment(app)
 app.config.from_object('config')
 db = SQLAlchemy(app)
+from models import(VenueGenre,Venue,ArtistGenre,Artist,Genre,Show)
+
 migrate=Migrate(app,db)
 # TODO: connect to a local postgresql database
 
@@ -31,57 +40,7 @@ migrate=Migrate(app,db)
 # Models.
 #----------------------------------------------------------------------------#
 
-class Venue(db.Model):
-    __tablename__ = 'venue'
 
-    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
-    name = db.Column(db.String)
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
-    address = db.Column(db.String(120))
-    genres = db.relationship('VenueGenre',backref='venueGenres')
-    phone = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
-    shows = db.relationship('Show', backref='shows', cascade="all,delete")
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
-
-class Artist(db.Model):
-    __tablename__ = 'artist'
-
-    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
-    name = db.Column(db.String)
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
-    phone = db.Column(db.String(120))
-    genres = db.relationship('ArtistGenre',backref='genreList')
-    image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
-    shows = db.relationship('Show', backref='list')
-
-class Genre(db.Model):
-  __tablename='genre'
-  id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-  name=db.Column(db.String,nullable=False,unique=True)
-
-class ArtistGenre(db.Model):
-  __tablename='artist_genre'
-  id = db.Column(db.Integer, primary_key=True,autoincrement=True)
-  artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), nullable=False)
-  genre_id = db.Column(db.Integer, db.ForeignKey('genre.id'), nullable=False)
-
-class VenueGenre(db.Model):
-  __tablename='venue_genre'
-  id = db.Column(db.Integer, primary_key=True,autoincrement=True)
-  venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), nullable=False)
-  genre_id=db.Column(db.Integer,db.ForeignKey('genre.id'),nullable=False)
-
-class Show(db.Model):
-  __tablename__='show'
-  id = db.Column(db.Integer, primary_key=True,autoincrement=True)
-  date=db.Column(db.DateTime,nullable=False)
-  artist_id = db.Column(db.Integer,db.ForeignKey('artist.id'),nullable=False)
-  venue_id=db.Column(db.Integer,db.ForeignKey('venue.id'),nullable=False)
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 #----------------------------------------------------------------------------#
 # Filters.
@@ -153,6 +112,28 @@ def search_venues():
     "data": data
   }
   return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
+@app.route('/venues/<int:venue_id>/delete', methods=['POST'])
+def deleteVenue(venue_id):
+  try:
+    object=db.session.query(Venue).filter(Venue.id == venue_id).first()
+    genres=db.session.query(VenueGenre).filter(VenueGenre.venue_id==venue_id).all()
+    for gen in genres:
+      db.session.delete(gen)
+    db.session.commit()
+    db.session.delete(object)
+    db.session.commit()
+    return redirect('/venues')
+  except:
+  # TODO: on unsuccessful db insert, flash an error instead.
+  # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
+  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    error = True
+    db.session.rollback()
+    flash(sys.exc_info())
+  finally:
+    db.session.close()
+
+  return redirect(url_for('index'))
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
@@ -182,11 +163,11 @@ def show_venue(venue_id):
     "city": wantedVenue.city,
     "state": wantedVenue.state,
     "phone": wantedVenue.phone,
-    "website": "https://www.themusicalhop.com",
+    "website": wantedVenue.website,
     "facebook_link": wantedVenue.facebook_link,
-    "seeking_talent": True,
-    "seeking_description": "We are on the lookout for a local artist to play every two weeks. Please call us.",
-    "image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
+    "seeking_talent": wantedVenue.seeking_talent,
+    "seeking_description": wantedVenue.seeking_description,
+    "image_link": wantedVenue.image_link,
     "past_shows": oldShows,
     "upcoming_shows": upcomingShows,
     "past_shows_count": len(oldShows),
@@ -420,10 +401,10 @@ def edit_venue(venue_id):
     genresToReturn.append(db.session.query(Genre).filter(Genre.id == gen.genre_id))
   data.append({"id": object.id, "name": object.name, "genres": genresToReturn,
                "city": object.city, "state": object.state, "phone": object.phone,
-               "website": "https://www.gunsnpetalsband.com",
+               "website": object.website,
                "facebook_link": object.facebook_link,
-               "seeking_venue": True,
-               "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
+               "seeking_venue": object.seeking_talent,
+               "seeking_description": object.seeking_description,
                "image_link": object.image_link
                })
   return render_template('forms/edit_venue.html', form=form, venue=data[0])
@@ -457,7 +438,7 @@ def edit_venue_submission(venue_id):
                                 genre_id=db.session.query(Genre.id).filter(Genre.name == gen).first())
       db.session.add(venueGenre)
     db.session.commit()
-    return redirect(url_for('show_venue', artist_id=venue_id))
+    return redirect(url_for('show_venue', venue_id=1))
   except:
     error = True
     db.session.rollback()
@@ -465,8 +446,7 @@ def edit_venue_submission(venue_id):
   finally:
     db.session.close()
   # on successful db insert, flash success
-  return redirect(url_for('show_venue', venue_id=venue_id))
-
+  return redirect('/')
 #  Create Artist
 #  ----------------------------------------------------------------
 
@@ -604,7 +584,7 @@ if not app.debug:
 
 # Default port:
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
 
 # Or specify port manually:
 '''

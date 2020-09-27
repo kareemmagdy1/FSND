@@ -46,6 +46,10 @@
 		<img src="{{ venue.image_link }}" alt="Venue Image" />
 	</div>
 </div>
+    <form action="/venues/{{venue.id}}/edit" method="get">
+      <input type="submit" value="edit">
+    </form>
+    <form action="/venues/{{venue.id}}/delete" method="post">  <input type="submit" value="delete"> </form>
 <section>
 	<h2 class="monospace">{{ venue.upcoming_shows_count }} Upcoming {% if venue.upcoming_shows_count == 1 %}Show{% else %}Shows{% endif %}</h2>
 	<div class="row">
