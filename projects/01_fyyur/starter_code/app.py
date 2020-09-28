@@ -26,14 +26,13 @@ from datetime import datetime
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
+from models import(db_setup, Venue,Artist,Genre,Show,VenueGenre,ArtistGenre)
 
 app = Flask(__name__)
 moment = Moment(app)
-app.config.from_object('config')
-db = SQLAlchemy(app)
-from models import(VenueGenre,Venue,ArtistGenre,Artist,Genre,Show)
+# connect to a local postgresql database
+db = db_setup(app)
 
-migrate=Migrate(app,db)
 # TODO: connect to a local postgresql database
 
 #----------------------------------------------------------------------------#
