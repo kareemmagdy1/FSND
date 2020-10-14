@@ -66,17 +66,7 @@ One note before you delve into your tasks: for each endpoint you are expected to
 8. Create a POST endpoint to get questions to play the quiz. This endpoint should take category and previous question parameters and return a random questions within the given category, if provided, and that is not one of the previous questions. 
 9. Create error handlers for all expected errors including 400, 404, 422 and 500. 
 
-REVIEW_COMMENT
-```
-This README is missing documentation of your endpoints. Below is an example for your endpoint to get all categories. Please use it as a reference for creating your documentation and resubmit your code. 
-
-Endpoints
-GET '/categories'
-GET ...
-POST ...
-DELETE ...
-
-GET '/categories'
+GET '/data/api/categories'
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
 - Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
@@ -87,7 +77,98 @@ GET '/categories'
 '5' : "Entertainment",
 '6' : "Sports"}
 
-```
+Get '/data/api/categories' 
+-Fetches a dictionary of question object that hold(question , answer , category and difficulty) , total number of questions, current category, and total categories
+-Request Arguments:page which is the number of page you wish to fetch
+-Returns example:{
+             'currentCategory':'drama',
+             'categories':{
+                '1' : "Science",
+                '2' : "Art",
+                '3' : "Geography",
+                '4' : "History",
+                '5' : "Entertainment",
+                '6' : "Sports"
+             },
+            'questions':[{
+            'id': 0,
+            'question': 'how old are you',
+            'answer': '21',
+            'category': 'personal',
+            'difficulty': 1
+            },  
+            {
+            'id': 1,
+            'question': 'how are you?',
+            'answer': 'good',
+            'category': 'personal',
+            'difficulty': 1
+            }
+        ],
+            'totalQuestions':2
+}
+DELETE 'question/api/<int:id>'
+-Fetches nothing
+-Request Arguments:none
+-Returns :returns an object with only variable is success if the operation completed successfuly otherwise it will throw and 404 error
+example: {'succuss':True
+}
+
+Post '/data/api/question'
+-Fetches: nothing
+-request argument: none
+-request data: an object containing data for creating a question object
+-Returns: success with value true to tell the requestor that the operations was successful and returns the id of the newly created object
+returns success with value false if operation fails
+example:{
+        'success':True,
+        'created':101
+}
+
+Post '/question/api/find'
+-Fetchs: a list of question objects that the search term matches with
+-request argument: term which is the searchterm the api use to look for questions 
+-Returns: a dictionary of question objects , total number of questions available and current category
+example: {'totalQuestions':1,
+        questions:[{
+    'id':1
+    'question': 'who are u?',
+    'answer' 'john',
+    'category': personal
+    'difficulty':1
+}],
+currentCategory:'personal'
+}
+
+GET 'categories/<int:categoryId>/questions'
+-Fetchs: fetches questions of a particular category
+-request argument:none
+-Returns: json object containing objects that relates to the category recieved ,total number of questions and current category
+example: {'totalQuestions':1,
+        questions:[{
+    'id':1
+    'question': 'who are u?',
+    'answer' 'john',
+    'category': personal
+    'difficulty':1
+}],
+currentCategory:'personal'
+}
+
+POST '/play/api/questions'
+Fetches: question for the user to answer
+request args:category and previous question sent if there is
+returns : return a json object containing asuitable question
+
+example: {
+    question:{
+    'id':1
+    'question': 'who are u?',
+    'answer' 'john',
+    'category': personal
+    'difficulty':1
+    }
+}
 
 
 ## Testing

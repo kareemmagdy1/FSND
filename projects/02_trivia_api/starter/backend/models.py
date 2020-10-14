@@ -1,6 +1,6 @@
-#
-# def test():
-#     return "hello"
+
+def test():
+    return "aiwa"
 import os
 
 from flask_sqlalchemy import SQLAlchemy
