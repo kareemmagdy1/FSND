@@ -31,7 +31,6 @@ class TriviaTestCase(unittest.TestCase):
         pass
     def test_of_400_bad_request(self):
         res = self.client().delete('/question/api/3')
-        print(res)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 400)
@@ -54,9 +53,27 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code,404)
         self.assertEqual(data['success'],False)
         self.assertEqual(data['message'],'Not Found')
+    def test_get_questions(self):
+        res=self.client().get('/data/api/questions/?page=1')
+        data=json.loads(res.data)
+        self.assertEqual(res.status_code,200)
+    def test_submit_question(self):
+        res=self.client().post('data/api/question',json={ 'question': 'how?',
+        'answer': 'no',
+        'difficulty': 1,
+        'category': '1'})
+        data=json.loads(res.data)
+        self.assertEqual(res.status_code,200)
 
+    def test_play_request(self):
+        res=self.client().post('/play/api/questions',json={
+        "previous_questions": [],
+        "quiz_category": {"type": "click", "id": 0}
 
+})
 
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
