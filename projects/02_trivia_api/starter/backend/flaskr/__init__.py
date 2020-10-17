@@ -24,7 +24,7 @@ def create_app(test_config=None):
 
     @app.route('/')
     def hello():
-        return jsonify({'message': 'hello'})
+        return jsonify({'message': 'yo'})
 
     '''
     @TODO: 
