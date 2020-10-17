@@ -68,10 +68,13 @@ class TriviaTestCase(unittest.TestCase):
     def test_play_request(self):
         res=self.client().post('/play/api/questions',json={
         "previous_questions": [],
-        "quiz_category": {"type": "click", "id": 0}
+        "quiz_category": {"type": "click", "id": 0}})
 
-})
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
 
+    def test_search_for_question(self):
+        res=self.client().post('/question/api/find/?term=i')
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
 # Make the tests conveniently executable
