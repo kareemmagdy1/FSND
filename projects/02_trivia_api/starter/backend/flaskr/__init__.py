@@ -232,13 +232,14 @@ def create_app(test_config=None):
                 })
         else:
             if(len(previousQuestion)==0):
-                choosenQuestion=db.session.query(Question).filter(category['type']==Question.category).first()
+                choosenQuestion=db.session.query(Question).filter(int(category['id'])+1==Question.category).first()
                 return jsonify({
                     'question':choosenQuestion.format()
                 })
             else:
                 index=len(previousQuestion)-1
-                newQuestion=db.session.query(Question).filter(category['type']==Question.category,Question.id>previousQuestion[index]).first()
+                print(category)
+                newQuestion=db.session.query(Question).filter(int(category['id'])+1==Question.category,Question.id>previousQuestion[index]).first()
                 if(newQuestion==None):
                     return jsonify({
                         'question':None
