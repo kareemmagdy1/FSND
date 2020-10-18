@@ -13,13 +13,28 @@ class Question extends Component {
     this.setState({visibleAnswer: !this.state.visibleAnswer});
   }
 
+
   render() {
     const { question, answer, category, difficulty } = this.props;
+    console.log(this)
+    let categories=['Science','Art','Geography','History','Entertainment','Sports'];
+    let index=0
+    for(let i=0;i<categories.length;i++){
+        console.log(categories[i])
+        console.log(category)
+        if(categories[i].indexOf(category)>-1) {
+            index=i;
+            break;
+        }
+      }
+    index--;
+    if(index<0)
+        index=5;
     return (
       <div className="Question-holder">
         <div className="Question">{question}</div>
         <div className="Question-status">
-          <img className="category" src={`${category}.svg`}/>
+          <img className="category" src={`${categories[index]}.svg`}/>
           <div className="difficulty">Difficulty: {difficulty}</div>
           <img src="delete.png" className="delete" onClick={() => this.props.questionAction('DELETE')}/>
           
