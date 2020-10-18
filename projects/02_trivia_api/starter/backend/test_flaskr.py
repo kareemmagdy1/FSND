@@ -29,13 +29,26 @@ class TriviaTestCase(unittest.TestCase):
     def tearDown(self):
         """Executed after reach test"""
         pass
-    def test_of_400_bad_request(self):
+
+    def test_delete_question(self):
+        res=self.client().delete('/question/api/22')
+        data=json.loads(res.data)
+        self.assertEqual(res.status_code,200)
+
+
+    def test_of_fail_delete_question(self):
         res = self.client().delete('/question/api/3')
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 400)
 
     def test_get_categories(self):
+        res=self.client().get('/data/api/categories')
+        data=json.loads(res.data)
+
+        self.assertEqual(res.status_code,200)
+        self.assertTrue(len(data['categories']))
+    def test_fail_get_categories(self):
         res=self.client().get('/data/api/categories')
         data=json.loads(res.data)
 
@@ -64,6 +77,14 @@ class TriviaTestCase(unittest.TestCase):
         'category': '1'})
         data=json.loads(res.data)
         self.assertEqual(res.status_code,200)
+    def test_fail_submit_question(self):
+        res=self.client().post('data/api/question',json={'question': '',
+        'answer': 'no',
+        'difficulty': 1,
+        'category': '1'})
+        data=json.loads(res.data)
+        self.assertEqual(data['success'],False)
+
 
     def test_play_request(self):
         res=self.client().post('/play/api/questions',json={
@@ -73,10 +94,25 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
 
+    def test_fail_play_request(self):
+        res=self.client().post('/play/api/questions',json={
+        "previous_questions": [],
+        "quiz_category": {"type": "thriller", "id": 10}})
+
+        data = json.loads(res.data)
+        self.assertEqual(data["error"],500)
+
     def test_search_for_question(self):
         res=self.client().post('/question/api/find/?term=i')
         data = json.loads(res.data)
-        self.assertEqual(res.status_code, 200)
+        self.assertTrue(len(data['questions']))
+
+    def test_search_for_question(self):
+        res=self.client().post('/question/api/find/?term=.')
+        data = json.loads(res.data)
+        self.assertFalse(len(data['questions']))
+
+
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
