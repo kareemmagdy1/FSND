@@ -125,9 +125,8 @@ def create_app(test_config=None):
     def create_question():
         data=json.loads(request.get_data())
         try:
-            category_type=db.session.query(Category.type).filter(Category.id==int(data['category'])).first()
             question=Question(answer=data['answer'],question=data['question'],difficulty=int(data['difficulty']),
-                              category=category_type)
+                              category=data['category'])
             question.insert()
             selection=Question.query.order_by(Question.id).all
             return jsonify({
@@ -212,7 +211,7 @@ def create_app(test_config=None):
         previousQuestion=data['previous_questions']
 
         category=data['quiz_category']
-
+        print(category)
         filters=[]
         if(category['type']=='click'):
             if (len(previousQuestion) == 0):
@@ -232,6 +231,7 @@ def create_app(test_config=None):
                 })
         else:
             if(len(previousQuestion)==0):
+
                 choosenQuestion=db.session.query(Question).filter(int(category['id'])+1==Question.category).first()
                 return jsonify({
                     'question':choosenQuestion.format()

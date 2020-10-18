@@ -6,7 +6,7 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 import json
 
-database_path = 'postgresql://postgres:sadsel2525@localhost:5432/trivia'
+database_path = 'postgresql://postgres:sadsel2525@localhost:5432/trivia_test'
 db = SQLAlchemy()
 
 '''
