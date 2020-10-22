@@ -9,6 +9,7 @@ test.db
 .DS_Store?
 ._*
 .Spotlight-V100
+.frontend/node_modules
 .Trashes
 ehthumbs.db
 Thumbs.db
